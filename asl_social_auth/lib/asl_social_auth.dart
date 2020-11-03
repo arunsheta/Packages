@@ -1,15 +1,34 @@
 part of asl_social_auth;
 
 class SocialLoginService {
-  // Fireabse auth instance...
-  static FirebaseAuth _auth = FirebaseAuth.instance;
+  /// Initializes a new [FirebaseApp] instance by [name] and [options] and returns
+  /// the created app. This method should be called before any usage of FlutterFire plugins.
+  ///
+  /// The default app instance cannot be initialized here and should be created
+  /// using the platform Firebase integration.
+  static Future<void> initializeAuthSerivce(
+      {String name, FirebaseOptions options}) async {
+    await Firebase.initializeApp(
+      name: name,
+      options: options,
+    );
 
-  // User sign-in...
+    _auth = FirebaseAuth.instance;
+  }
+
+  // Fireabse auth instance...
+  static FirebaseAuth _auth;
+
+  /// User sign-in (Google, Facebook, Anonymously, Email-Password)...
+  /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
+  ///
+  /// [email] and [password] is required for login using email...
   static Future<User> signIn(
     SocialLoginType type, {
-    @required String email,
-    @required String password,
+    String email,
+    String password,
   }) async {
+    _checkIfServiceIsInitialize();
     // Authorised user detial...
     User _authUser;
     switch (type) {
@@ -34,16 +53,17 @@ class SocialLoginService {
         _authUser = await _signInAnoymously();
         break;
 
-      // Twitter...
-      case SocialLoginType.Twitter:
-        _signInWithTiwtter();
-        break;
+      // // Twitter...
+      // case SocialLoginType.Twitter:
+      //   _signInWithTiwtter();
+      //   break;
     }
 
     return _authUser;
   }
 
-  // Sign-out user...
+  /// User Sign-Out (Google, Facebook, Anonymously, Email-Password)...
+  /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
   static Future<void> signOut(SocialLoginType type) async {
     switch (type) {
 
@@ -65,16 +85,19 @@ class SocialLoginService {
       case SocialLoginType.Anonymously:
         break;
 
-      // Twitter user...
-      case SocialLoginType.Twitter:
-        break;
+      // // Twitter user...
+      // case SocialLoginType.Twitter:
+      //   break;
     }
 
     // Signs out the current user from firebase user...
     await _auth.signOut();
   }
 
-  // Send forgot password link...
+  /// Send forgot password link for email login...
+  /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
+  ///
+  /// [email] and [password] is required for login using email...
   static Future<void> forgotPassword(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
@@ -301,5 +324,12 @@ class SocialLoginService {
     print("User Name: ${_user.displayName}");
     print("User Email ${_user.email}");
     return _user;
+  }
+
+  // check if service is initialize or not...
+  static _checkIfServiceIsInitialize() {
+    if (_auth == null) {
+      throw "Initialize auth serivce in main before using any serivce";
+    }
   }
 }
