@@ -6,4 +6,5 @@ enum SocialLoginType {
   Facebook,
   EmailPassword,
   Anonymously,
+  Twitter,
 }

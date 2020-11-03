@@ -8,6 +8,7 @@ class SocialLoginService {
   /// using the platform Firebase integration.
   static Future<void> initializeAuthSerivce(
       {String name, FirebaseOptions options}) async {
+    WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
       name: name,
       options: options,
@@ -53,10 +54,10 @@ class SocialLoginService {
         _authUser = await _signInAnoymously();
         break;
 
-      // // Twitter...
-      // case SocialLoginType.Twitter:
-      //   _signInWithTiwtter();
-      //   break;
+      // Twitter...
+      case SocialLoginType.Twitter:
+        _signInWithTiwtter();
+        break;
     }
 
     return _authUser;
@@ -85,9 +86,9 @@ class SocialLoginService {
       case SocialLoginType.Anonymously:
         break;
 
-      // // Twitter user...
-      // case SocialLoginType.Twitter:
-      //   break;
+      // Twitter user...
+      case SocialLoginType.Twitter:
+        break;
     }
 
     // Signs out the current user from firebase user...
@@ -167,28 +168,6 @@ class SocialLoginService {
     return _authUser;
   }
 
-  // // Getting the facebook profile of a signed in user...
-  // Future<Map<String, dynamic>> getFacebookUserDetail(
-  //     BuildContext context, String token) async {
-  //   try {
-  //     // Throw unauthorised error if token is empty...
-  //     if (token?.isEmpty ?? true)
-  //       throw AppException(
-  //         type: ExceptionType.UnAuthorised,
-  //       );
-
-  //     // Call Facebook graph API to get user detail...
-  //     String resp = await ApiCall.callService(
-  //         context: context,
-  //         requestInfo: APIRequestInfoObj(
-  //             endPoint:
-  //                 'https://graph.facebook.com/v2.12/me?fields=name,first_name,last_name,email&access_token=$token'));
-  //     return json.decode(resp);
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   // Anoymous SignIn (Guest SignIn)...
   static Future<User> _signInAnoymously() async {
     UserCredential userCredential = await _auth.signInAnonymously();
@@ -229,49 +208,41 @@ class SocialLoginService {
     }
   }
 
-  // Sign-in with twitter
+// Sign-in with twitter
   static Future<User> _signInWithTiwtter() async {
     User _authUser;
 
-    // final twitterLogin = TwitterLogin(
-    //   apiKey: APISetup.twitterAPIKey,
-    //   apiSecretKey: APISetup.twitterAPISecretKey,
-    //   // Callback URL for Twitter App
-    //   // Android is a deeplink
-    //   // iOS is a URLScheme
-    //   redirectURI: 'URLScheme',
-    // );
+    final twitterLogin = TwitterLogin(
+      apiKey: "APISetup.twitterAPIKey",
+      apiSecretKey: "APISetup.twitterAPISecretKey",
+      redirectURI: "APISetup.twitterRedirectURL",
+    );
 
-    // // Login user...
-    // final AuthResult authResult = await twitterLogin.login();
+    // Login user...
+    final AuthResult authResult = await twitterLogin.login();
 
-    // // Manager auth result...
-    // switch (authResult.status) {
+    // Manager auth result...
+    switch (authResult.status) {
 
-    //   // Logged In...
-    //   case TwitterLoginStatus.loggedIn:
-    //     UserCredential authUser =
-    //         await _auth.signInWithCustomToken(authResult.authToken);
-    //     print(authUser.user.email);
-    //     _authUser = authUser.user;
-    //     break;
+      // Logged In...
+      case TwitterLoginStatus.loggedIn:
+        UserCredential authUser = await _auth.signInWithCredential(
+            TwitterAuthProvider.credential(
+                accessToken: authResult.authToken,
+                secret: authResult.authTokenSecret));
 
-    //   // Flow cancled by user...
-    //   case TwitterLoginStatus.cancelledByUser:
-    //     print("Cancled by user");
-    //     break;
+        _authUser = authUser.user;
+        break;
 
-    //   // Error...
-    //   case TwitterLoginStatus.error:
-    //     print(authResult.errorMessage);
+      // Flow cancled by user...
+      case TwitterLoginStatus.cancelledByUser:
+        print("Cancled by user");
+        break;
 
-    //     // Throw error...
-    //     throw AppException(
-    //       title: "Error",
-    //       message: "Something went wrong",
-    //     );
-    //     break;
-    // }
+      // Error...
+      case TwitterLoginStatus.error:
+        break;
+    }
 
     return _authUser;
   }
@@ -288,17 +259,6 @@ class SocialLoginService {
 
   //   // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
   //   // after they have been validated with Apple (see `Integration` section for more information on how to do this)
-  // }
-
-  // // Get user auth state...
-  // userAuthState() {
-  //   _auth.authStateChanges().listen((User user) {
-  //     if (user == null) {
-  //       print('User is currently signed out!');
-  //     } else {
-  //       print('User is signed in!');
-  //     }
-  //   });
   // }
 
   // Auth user with firebase auth...
