@@ -7,7 +7,8 @@ class SocialLoginService {
   // User sign-in...
   static Future<User> signIn(
     SocialLoginType type, {
-    UserInfoObj userInfo,
+    @required String email,
+    @required String password,
   }) async {
     // Authorised user detial...
     User _authUser;
@@ -25,7 +26,7 @@ class SocialLoginService {
 
       // Email-password...
       case SocialLoginType.EmailPassword:
-        _signInWithEmailPassword(userInfo);
+        _signInWithEmailPassword(email: email, password: password);
         break;
 
       // Anonymously...
@@ -172,12 +173,15 @@ class SocialLoginService {
   }
 
   // SignIn with email-password...
-  static Future<User> _signInWithEmailPassword(UserInfoObj userInfo) async {
+  static Future<User> _signInWithEmailPassword({
+    @required String email,
+    @required String password,
+  }) async {
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: userInfo.email,
-        password: userInfo.password,
+        email: email,
+        password: password,
       );
 
       // Authenticate user with firebase...
