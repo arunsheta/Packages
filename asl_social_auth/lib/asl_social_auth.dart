@@ -1,6 +1,14 @@
 part of asl_social_auth;
 
 class SocialLoginService {
+  // Fireabse auth instance...
+  static FirebaseAuth _auth;
+
+  // Twitter keys...
+  static String apiKey;
+  static String apiSecretKey;
+  static String redirectURI;
+
   /// Initializes a new [FirebaseApp] instance by [name] and [options] and returns
   /// the created app. This method should be called before any usage of FlutterFire plugins.
   ///
@@ -16,9 +24,6 @@ class SocialLoginService {
 
     _auth = FirebaseAuth.instance;
   }
-
-  // Fireabse auth instance...
-  static FirebaseAuth _auth;
 
   /// User sign-in (Google, Facebook, Anonymously, Email-Password)...
   /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
@@ -247,19 +252,19 @@ class SocialLoginService {
     return _authUser;
   }
 
-  // signInWithApple() async {
-  //   final credential = await SignInWithApple.getAppleIDCredential(
-  //     scopes: [
-  //       AppleIDAuthorizationScopes.email,
-  //       AppleIDAuthorizationScopes.fullName,
-  //     ],
-  //   );
+  signInWithApple() async {
+    final credential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+    );
 
-  //   print(credential);
+    print(credential);
 
-  //   // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
-  //   // after they have been validated with Apple (see `Integration` section for more information on how to do this)
-  // }
+    // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
+    // after they have been validated with Apple (see `Integration` section for more information on how to do this)
+  }
 
   // Auth user with firebase auth...
   static Future<User> _autheticateUserWithFirebaseAuth(
@@ -268,14 +273,13 @@ class SocialLoginService {
     if (credential == null) return null;
 
     UserCredential authResult = await _auth.signInWithCredential(credential);
-
     User _user = authResult.user;
 
     // Check user is not anonymous...
     assert(!_user.isAnonymous);
     assert(await _user.getIdToken() != null);
 
-    // Cet Current auth user...
+    // Get Current auth user...
     User currentUser = _auth.currentUser;
 
     // Check if current user and auth user is same...
@@ -286,7 +290,7 @@ class SocialLoginService {
     return _user;
   }
 
-  // check if service is initialize or not...
+  // Check if service is initialize or not...
   static _checkIfServiceIsInitialize() {
     if (_auth == null) {
       throw "Initialize auth serivce in main before using any serivce";
