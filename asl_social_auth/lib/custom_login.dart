@@ -7,4 +7,5 @@ enum SocialLoginType {
   EmailPassword,
   Anonymously,
   Twitter,
+  Apple,
 }

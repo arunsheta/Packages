@@ -25,7 +25,7 @@ class SocialLoginService {
     _auth = FirebaseAuth.instance;
   }
 
-  /// User sign-in (Google, Facebook, Anonymously, Email-Password)...
+  /// User sign-in (Google, Facebook, Anonymously, Email-Password, Twitter, Apple)...
   /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
   ///
   /// [email] and [password] is required for login using email...
@@ -34,9 +34,12 @@ class SocialLoginService {
     String email,
     String password,
   }) async {
+    // Check if fireabse is initlized or not...
     _checkIfServiceIsInitialize();
+
     // Authorised user detial...
     User _authUser;
+
     switch (type) {
 
       // Google...
@@ -61,38 +64,47 @@ class SocialLoginService {
 
       // Twitter...
       case SocialLoginType.Twitter:
-        _signInWithTiwtter();
+        _authUser = await _signInWithTiwtter();
+        break;
+
+      // Apple...
+      case SocialLoginType.Apple:
+        _authUser = await _signInWithApple();
         break;
     }
 
     return _authUser;
   }
 
-  /// User Sign-Out (Google, Facebook, Anonymously, Email-Password)...
+  /// User Sign-Out (Google, Facebook, Anonymously, Email-Password, Twitter, Apple)...
   /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
   static Future<void> signOut(SocialLoginType type) async {
     switch (type) {
 
-      // Google user...
+      // Google...
       case SocialLoginType.Google:
         await GoogleSignIn().signOut();
         break;
 
-      // Facebook user...
+      // Facebook...
       case SocialLoginType.Facebook:
         await FacebookAuth.instance.logOut();
         break;
 
-      // Email-password user...
+      // Email-password...
       case SocialLoginType.EmailPassword:
         break;
 
-      // Anonymously logged in user...
+      // Anonymously...
       case SocialLoginType.Anonymously:
         break;
 
-      // Twitter user...
+      // Twitter...
       case SocialLoginType.Twitter:
+        break;
+
+      // Apple...
+      case SocialLoginType.Apple:
         break;
     }
 
@@ -101,9 +113,6 @@ class SocialLoginService {
   }
 
   /// Send forgot password link for email login...
-  /// [type] is required to use any service,(e.g: SocialLoginType.Google for Google login).
-  ///
-  /// [email] and [password] is required for login using email...
   static Future<void> forgotPassword(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
@@ -114,28 +123,24 @@ class SocialLoginService {
 
   // SignIn with google...
   static Future<User> _signInWithGoogle() async {
-    try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+    // Trigger the authentication flow
+    final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
-      // If user cancel sign-in flow return user...
-      if (googleUser == null) return null;
+    // If user cancel sign-in flow return user...
+    if (googleUser == null) return null;
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
 
-      // Create a new credential
-      final GoogleAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+    // Create a new credential
+    final GoogleAuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
 
-      // return firebase authenticated user...
-      return await _autheticateUserWithFirebaseAuth(credential);
-    } catch (e) {
-      throw e;
-    }
+    // return firebase authenticated user...
+    return await _autheticateUserWithFirebaseAuth(credential);
   }
 
   // Sign with facebook...
@@ -162,7 +167,7 @@ class SocialLoginService {
         print("User Cancled login process");
         break;
 
-      // Error during sign process...
+      // Error during sign-In process...
       case FacebookAuthLoginResponse.error:
         throw Exception(
           "Something went wronng, Please try again",
@@ -185,6 +190,7 @@ class SocialLoginService {
     @required String password,
   }) async {
     try {
+      // Get user credential...
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -232,9 +238,10 @@ class SocialLoginService {
       // Logged In...
       case TwitterLoginStatus.loggedIn:
         UserCredential authUser = await _auth.signInWithCredential(
-            TwitterAuthProvider.credential(
-                accessToken: authResult.authToken,
-                secret: authResult.authTokenSecret));
+          TwitterAuthProvider.credential(
+              accessToken: authResult.authToken,
+              secret: authResult.authTokenSecret),
+        );
 
         _authUser = authUser.user;
         break;
@@ -252,18 +259,41 @@ class SocialLoginService {
     return _authUser;
   }
 
-  signInWithApple() async {
-    final credential = await SignInWithApple.getAppleIDCredential(
-      scopes: [
-        AppleIDAuthorizationScopes.email,
-        AppleIDAuthorizationScopes.fullName,
-      ],
-    );
+  // SignIn with Apple...
+  static Future<User> _signInWithApple() async {
+    User _authUser;
+    try {
+      // Get
+      final AuthorizationCredentialAppleID appleIdCredential =
+          await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        webAuthenticationOptions: WebAuthenticationOptions(
+          // TODO: Set the `clientId` and `redirectUri` arguments to the values you entered in the Apple Developer portal during the setup...
+          clientId: 'com.aboutyou.dart_packages.sign_in_with_apple.example',
+          redirectUri: Uri.parse(
+            'https://flutter-sign-in-with-apple-example.glitch.me/callbacks/sign_in_with_apple',
+          ),
+        ),
+      );
 
-    print(credential);
+      // Get an OAuthCredential...
+      final credential = OAuthProvider('apple.com').credential(
+        idToken: appleIdCredential.identityToken,
+        accessToken: appleIdCredential.authorizationCode,
+      );
 
-    // Now send the credential (especially `credential.authorizationCode`) to your server to create a session
-    // after they have been validated with Apple (see `Integration` section for more information on how to do this)
+      // Use the credential to sign in to firebase
+      _authUser = await _autheticateUserWithFirebaseAuth(credential);
+    } catch (e) {
+      if ((e?.code ?? "") != AuthorizationErrorCode.unknown &&
+          (e?.code ?? "") != AuthorizationErrorCode.canceled) {
+        throw Exception(e.message);
+      }
+    }
+    return _authUser;
   }
 
   // Auth user with firebase auth...
@@ -285,8 +315,8 @@ class SocialLoginService {
     // Check if current user and auth user is same...
     assert(_user.uid == currentUser.uid);
 
-    print("User Name: ${_user.displayName}");
-    print("User Email ${_user.email}");
+    print("User Name: ${_user?.displayName ?? "N/A"}");
+    print("User Email ${_user?.email ?? "N/A"}");
     return _user;
   }
 

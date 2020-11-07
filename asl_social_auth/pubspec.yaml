@@ -12,11 +12,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  firebase_auth: ^0.18.1+2
-  google_sign_in: ^4.5.5
+  firebase_auth: ^0.18.3
+  google_sign_in: ^4.5.6
   flutter_facebook_auth: ^0.3.3
   sign_in_with_apple: ^2.5.4
-  twitter_login: ^1.0.2
+  twitter_login: ^2.0.0
 
 dev_dependencies:
   flutter_test:
