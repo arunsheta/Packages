@@ -5,15 +5,19 @@ class ChatService {
   String _usersCollection = "user_collection_name";
   String _chatRoomCollection = "chatroom_collection_name";
 
+  static final ChatService singleton = ChatService._internal();
+
   ChatService({
     @required String projectName,
     @required String userCollectionName,
     @required String chatRoomCollectionName,
   }) {
     _projectName = projectName;
-    _usersCollection = chatRoomCollectionName;
+    _usersCollection = userCollectionName;
     _chatRoomCollection = chatRoomCollectionName;
   }
+
+  ChatService._internal();
 
   printVarialble() {
     print(_projectName);
