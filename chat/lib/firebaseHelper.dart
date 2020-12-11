@@ -5,11 +5,11 @@ class ChatService {
   String _usersCollection = "user_collection_name";
   String _chatRoomCollection = "chatroom_collection_name";
 
-  ChatService(
-    String projectName,
-    String userCollectionName,
-    String chatRoomCollectionName,
-  ) {
+  ChatService({
+    @required String projectName,
+    @required String userCollectionName,
+    @required String chatRoomCollectionName,
+  }) {
     _projectName = projectName;
     _usersCollection = chatRoomCollectionName;
     _chatRoomCollection = chatRoomCollectionName;
