@@ -145,6 +145,7 @@ class ApiCall {
 
   // API info...
   static void _printApiDetial(APIRequestInfoObj info) {
+    if (!kReleaseMode) return;
     String apiLog = """
 
         ${info.serviceName} Service Parameters
@@ -160,13 +161,14 @@ class ApiCall {
 
   // API resposne info...
   static void _printResponse(http.Response response, String serviceName) {
+    if (!kReleaseMode) return;
     String apiLog = """
 
         $serviceName Service Response
         |--------------------------------------------------------------------------------------------------------------------------
         | API        :- ${serviceName ?? ""}
         | StatusCode :- ${response?.statusCode ?? ""}
-        | Message    :- ${response?.body ?? ""}
+        | Message    :- ${defaultRespInfo(response?.body ?? "").message}
         |--------------------------------------------------------------------------------------------------------------------------
         """;
     print(apiLog);
