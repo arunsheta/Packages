@@ -1,6 +1,4 @@
-import 'dart:convert';
-import 'alert_string.dart';
-import 'api_setup.dart';
+part of asl_auth;
 
 ResponseObj defaultRespInfo(String str) => str.isEmpty
     ? ResponseObj()
@@ -9,9 +7,14 @@ ResponseObj defaultRespInfo(String str) => str.isEmpty
       );
 
 class ResponseObj {
+  static String errorTitleKey = "";
+  static String errorMessageKey = "";
+  static String dataKey = "";
+  static String datasetKey = "";
+
   ResponseObj({
-    this.title = AlertMessageString.defaultErrorTitle,
-    this.message = AlertMessageString.somethingWentWrong,
+    this.title = APIErrorMsg.defaultErrorTitle,
+    this.message = APIErrorMsg.somethingWentWrong,
     this.resultObj = const {},
     this.resultArray = const [],
   });
@@ -25,22 +28,19 @@ class ResponseObj {
     List dataSet = [];
 
     // Error/Success title...
-    String title =
-        json[APISetup.errorTitleKey] ?? AlertMessageString.defaultErrorTitle;
+    String title = json[errorTitleKey] ?? APIErrorMsg.defaultErrorTitle;
 
     // Error/Success message...
-    String message =
-        json[APISetup.errorMessageKey] ?? AlertMessageString.somethingWentWrong;
+    String message = json[errorMessageKey] ?? APIErrorMsg.somethingWentWrong;
 
     // Get object...
-    if (json[APISetup.dataKey] != null && json[APISetup.dataKey] is Map) {
-      data = json[APISetup.dataKey];
+    if (json[dataKey] != null && json[dataKey] is Map) {
+      data = json[dataKey];
     }
 
     // Get object array...
-    if (json[APISetup.datasetKey] != null &&
-        json[APISetup.datasetKey] is List) {
-      dataSet = json[APISetup.datasetKey];
+    if (json[datasetKey] != null && json[datasetKey] is List) {
+      dataSet = json[datasetKey];
     }
 
     return ResponseObj(

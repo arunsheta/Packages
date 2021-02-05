@@ -54,3 +54,8 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+
+  # ASL_Auth:
+  #   git:
+  #     url: https://github.com/arunsheta/packages
+  #     path: ASL_Auth

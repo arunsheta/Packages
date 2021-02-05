@@ -1,4 +1,4 @@
-import 'alert_string.dart';
+part of asl_auth;
 
 class AppException implements Exception {
   final String message;
@@ -19,38 +19,38 @@ class AppException implements Exception {
     switch (type) {
       // No Internet...
       case ExceptionType.NoInternet:
-        alertTitle = AlertMessageString.noInternet;
-        msg = AlertMessageString.noInternetMsg;
+        alertTitle = APIErrorMsg.noInternet;
+        msg = APIErrorMsg.noInternetMsg;
         break;
 
       // Un-Authorised...
       case ExceptionType.UnAuthorised:
-        alertTitle = AlertMessageString.unAuthorisedTitle;
-        msg = AlertMessageString.unAuthorisedMsg;
+        alertTitle = APIErrorMsg.unAuthorisedTitle;
+        msg = APIErrorMsg.unAuthorisedMsg;
         break;
 
       // HTTP Exception...
       case ExceptionType.HTTPException:
-        alertTitle = title ?? AlertMessageString.defaultErrorTitle;
-        msg = message ?? AlertMessageString.somethingWentWrong;
+        alertTitle = title ?? APIErrorMsg.defaultErrorTitle;
+        msg = message ?? APIErrorMsg.somethingWentWrong;
         break;
 
       // Format Exception...(Backend side have an invalid value set in the 'Request Format' property of a REST API method, or don't have any value set at all.)
       case ExceptionType.FormatException:
-        alertTitle = title ?? AlertMessageString.defaultErrorTitle;
-        msg = message ?? AlertMessageString.somethingWentWrong;
+        alertTitle = title ?? APIErrorMsg.defaultErrorTitle;
+        msg = message ?? APIErrorMsg.somethingWentWrong;
         break;
 
       // General Error...
       case ExceptionType.None:
-        alertTitle = title ?? AlertMessageString.defaultErrorTitle;
-        msg = message ?? AlertMessageString.somethingWentWrong;
+        alertTitle = title ?? APIErrorMsg.defaultErrorTitle;
+        msg = message ?? APIErrorMsg.somethingWentWrong;
         break;
 
       // Under Maintainance...
       case ExceptionType.UnderMaintainance:
-        alertTitle = title ?? AlertMessageString.underMaintainanceTitle;
-        msg = message ?? AlertMessageString.underMaintainanceMsg;
+        alertTitle = title ?? APIErrorMsg.underMaintainanceTitle;
+        msg = message ?? APIErrorMsg.underMaintainanceMsg;
         break;
     }
     return AlertInfo(title: alertTitle, message: msg);
@@ -76,4 +76,12 @@ class AlertInfo {
     this.title,
     this.message,
   });
+}
+
+// Http request type...
+enum HTTPRequestType {
+  POST,
+  GET,
+  DELETE,
+  PUT,
 }
