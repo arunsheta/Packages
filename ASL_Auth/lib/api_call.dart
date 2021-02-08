@@ -162,13 +162,14 @@ class ApiCall {
   // API resposne info...
   static void _printResponse(http.Response response, String serviceName) {
     if (kReleaseMode) return;
+    if (response.statusCode < 300) return;
     String apiLog = """
 
         $serviceName Service Response
         |--------------------------------------------------------------------------------------------------------------------------
         | API        :- ${serviceName ?? ""}
         | StatusCode :- ${response?.statusCode ?? ""}
-        | Message    :- ${defaultRespInfo(response?.body ?? "").message}
+        | Message    :- ${response?.body ?? ""}
         |--------------------------------------------------------------------------------------------------------------------------
         """;
     print(apiLog);
