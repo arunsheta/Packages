@@ -13,9 +13,9 @@ class ApiCall {
       _printApiDetial(requestInfo);
 
       // Get Response...
-      return requestInfo.callAsMultipart
-          ? await _callMultipartAPI(requestInfo: requestInfo)
-          : await _callAPI(requestInfo: requestInfo);
+      return requestInfo.docList.isEmpty
+          ? await _callAPI(requestInfo: requestInfo)
+          : await _callMultipartAPI(requestInfo: requestInfo);
 
       // Exceptions...
     } on SocketException catch (e) {
@@ -184,7 +184,6 @@ class APIRequestInfoObj {
   Map<String, String> headers;
   List<UploadDocumentObj> docList;
   String serviceName;
-  bool callAsMultipart;
 
   APIRequestInfoObj({
     this.requestType = HTTPRequestType.POST,
@@ -193,7 +192,6 @@ class APIRequestInfoObj {
     this.docList,
     this.url,
     this.serviceName = "",
-    this.callAsMultipart = false,
   });
 }
 
