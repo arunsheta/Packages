@@ -4,7 +4,8 @@ part of asl_social_auth;
 enum SocialLoginType {
   Google,
   Facebook,
-  EmailPassword,
+  EmailPasswordSignIn,
+  EmailPasswordSignUp,
   Anonymously,
   Twitter,
   Apple,
