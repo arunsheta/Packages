@@ -52,6 +52,10 @@ class AppException implements Exception {
         alertTitle = title ?? APIErrorMsg.underMaintainanceTitle;
         msg = message ?? APIErrorMsg.underMaintainanceMsg;
         break;
+
+      // Timeout...
+      case ExceptionType.TimeOut:
+        break;
     }
     return AlertInfo(title: alertTitle, message: msg);
   }
@@ -66,6 +70,7 @@ enum ExceptionType {
   FormatException,
   UnAuthorised,
   UnderMaintainance,
+  TimeOut,
   None,
 }
 

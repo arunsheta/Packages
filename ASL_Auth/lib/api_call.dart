@@ -15,7 +15,9 @@ class ApiCall {
       // Get Response...
       return requestInfo.docList.isEmpty
           ? await _callAPI(requestInfo: requestInfo)
-          : await _callMultipartAPI(requestInfo: requestInfo);
+              .timeout(Duration(seconds: requestInfo.timeSecond))
+          : await _callMultipartAPI(requestInfo: requestInfo)
+              .timeout(Duration(seconds: requestInfo.timeSecond));
 
       // Exceptions...
     } on SocketException catch (e) {
@@ -32,6 +34,12 @@ class ApiCall {
       throw AppException(
         message: e?.source?.toString(),
         type: ExceptionType.FormatException,
+      );
+    } on TimeoutException {
+      throw AppException(
+        title: APIErrorMsg.requestTimeOutTitle,
+        message: APIErrorMsg.requestTimeOutMessage,
+        type: ExceptionType.TimeOut,
       );
     } catch (error) {
       throw error;
@@ -184,14 +192,16 @@ class APIRequestInfoObj {
   Map<String, String> headers;
   List<UploadDocumentObj> docList;
   String serviceName;
+  int timeSecond = 30;
 
   APIRequestInfoObj({
     this.requestType = HTTPRequestType.POST,
     this.parameter,
     this.headers,
-    this.docList,
+    this.docList = const [],
     this.url,
     this.serviceName = "",
+    this.timeSecond = 30,
   });
 }
 
