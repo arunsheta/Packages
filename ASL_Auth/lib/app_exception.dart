@@ -25,8 +25,8 @@ class AppException implements Exception {
 
       // Un-Authorised...
       case ExceptionType.UnAuthorised:
-        alertTitle = APIErrorMsg.unAuthorisedTitle;
-        msg = APIErrorMsg.unAuthorisedMsg;
+        alertTitle = title ?? APIErrorMsg.unAuthorisedTitle;
+        msg = message ?? APIErrorMsg.unAuthorisedMsg;
         break;
 
       // HTTP Exception...
