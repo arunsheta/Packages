@@ -55,6 +55,8 @@ class AppException implements Exception {
 
       // Timeout...
       case ExceptionType.TimeOut:
+        alertTitle = title ?? APIErrorMsg.requestTimeOutTitle;
+        msg = message ?? APIErrorMsg.requestTimeOutMessage;
         break;
     }
     return AlertInfo(title: alertTitle, message: msg);
