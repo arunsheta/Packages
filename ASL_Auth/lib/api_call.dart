@@ -52,7 +52,7 @@ class ApiCall {
     if (connectivity == ConnectivityResult.none) {
       throw AppException(
         title: APIErrorMsg.noInternet,
-        message: APIErrorMsg.noInternet,
+        message: APIErrorMsg.noInternetMsg,
       );
     }
     return true;
