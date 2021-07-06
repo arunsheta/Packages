@@ -1,8 +1,8 @@
 part of asl_auth;
 
 class AppException implements Exception {
-  final String message;
-  final String title;
+  final String? message;
+  final String? title;
   final ExceptionType type;
   final int statusCode;
 
@@ -62,8 +62,9 @@ class AppException implements Exception {
     return AlertInfo(title: alertTitle, message: msg);
   }
 
-  String get getTitle => getAlertInfo.title;
-  String get getMessage => getAlertInfo.message;
+  String get getTitle => getAlertInfo.title ?? APIErrorMsg.defaultErrorTitle;
+  String get getMessage =>
+      getAlertInfo.message ?? APIErrorMsg.somethingWentWrong;
 }
 
 enum ExceptionType {
@@ -77,8 +78,8 @@ enum ExceptionType {
 }
 
 class AlertInfo {
-  final String title;
-  final String message;
+  final String? title;
+  final String? message;
   AlertInfo({
     this.title,
     this.message,
