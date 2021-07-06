@@ -3,7 +3,7 @@ part of asl_auth;
 class ApiCall {
   // Call API...
   static Future<http.Response> callService({
-    @required APIRequestInfoObj requestInfo,
+    required APIRequestInfoObj requestInfo,
   }) async {
     try {
       // Check Internet...
@@ -32,7 +32,7 @@ class ApiCall {
       );
     } on FormatException catch (e) {
       throw AppException(
-        message: e?.source?.toString(),
+        message: e.source?.toString(),
         type: ExceptionType.FormatException,
       );
     } on TimeoutException {
@@ -60,7 +60,7 @@ class ApiCall {
 
   //Call API...
   static Future<http.Response> _callAPI({
-    @required APIRequestInfoObj requestInfo,
+    required APIRequestInfoObj requestInfo,
   }) async {
     // final URL...
     String _url = requestInfo.url;
@@ -69,33 +69,37 @@ class ApiCall {
     http.Response response;
 
     // Add header...
-    Map<String, dynamic> apiHeader = requestInfo?.headers;
+    Map<String, String>? apiHeader = requestInfo.headers;
 
     //Call API with respect to request type...
     switch (requestInfo.requestType) {
       case HTTPRequestType.POST:
         response = await http.post(
-          _url,
-          body: json.encode(requestInfo?.parameter),
+          Uri.parse(_url),
+          body: requestInfo.parameter == null
+              ? null
+              : json.encode(requestInfo.parameter),
           headers: apiHeader,
         );
         break;
       case HTTPRequestType.GET:
         response = await http.get(
-          _url,
+          Uri.parse(_url),
           headers: apiHeader,
         );
         break;
       case HTTPRequestType.DELETE:
         response = await http.delete(
-          _url,
+          Uri.parse(_url),
           headers: apiHeader,
         );
         break;
       case HTTPRequestType.PUT:
         response = await http.put(
-          _url,
-          body: json.encode(requestInfo.parameter),
+          Uri.parse(_url),
+          body: requestInfo.parameter == null
+              ? null
+              : json.encode(requestInfo.parameter),
           headers: apiHeader,
         );
         break;
@@ -110,35 +114,45 @@ class ApiCall {
 
   // Multipart request...
   static Future<http.Response> _callMultipartAPI({
-    @required APIRequestInfoObj requestInfo,
+    required APIRequestInfoObj requestInfo,
   }) async {
     //Get URI...
     Uri uri = Uri.parse(requestInfo.url);
     http.MultipartRequest request = http.MultipartRequest(
-        requestInfo.requestType.toString().split(".").last, uri);
+      describeEnum(requestInfo.requestType),
+      uri,
+    );
 
     //Add Parameters...
     requestInfo.parameter?.forEach((key, value) => request.fields[key] = value);
 
     //Add header...
-    Map<String, dynamic> apiHeader = requestInfo?.headers;
+    Map<String, String>? apiHeader = requestInfo.headers;
     apiHeader?.forEach((key, value) => request.headers[key] = value);
 
-    //Add Attached File...
-    List<UploadDocumentObj> docList = requestInfo.docList;
-    if (docList.isNotEmpty) {
-      for (int i = 0; i < docList.length; i++) {
-        if (docList[i].docKey.isNotEmpty && docList[i].docPathList.isNotEmpty) {
-          for (int j = 0; j < docList[i].docPathList.length; j++) {
-            request.files.add(
-              await http.MultipartFile.fromPath(
-                  docList[i].docKey, docList[i].docPathList[j],
-                  filename: basename(docList[i].docPathList[j])),
-            );
-          }
-        }
-      }
-    }
+    //Set Documents
+    List<Future<http.MultipartFile>> _files = requestInfo.docList
+        .map(
+          (docInfo) => docInfo.docPathList.map(
+            (docPath) => http.MultipartFile.fromPath(
+              docInfo.docKey,
+              docPath,
+              filename: basename(docPath),
+            ).catchError(
+              (error) {
+                print(
+                    "----------------Error While uploading Image: $docPath, Error: $error-------------");
+              },
+            ),
+          ),
+        )
+        .expand((multipartFile) => multipartFile)
+        .toList();
+
+    // Upload all files...
+    List<http.MultipartFile> _multiPartFiles =
+        await Future.wait<http.MultipartFile>(_files);
+    request.files.addAll(_multiPartFiles);
 
     //Send Request...
     http.Response response =
@@ -158,7 +172,7 @@ class ApiCall {
 
         ${info.serviceName} Service Parameters
         |-------------------------------------------------------------------------------------------------------------------------
-        | ApiType :- ${info.requestType.toString().split(".").last}
+        | ApiType :- ${describeEnum(info.requestType)}
         | URL     :- ${info.url}
         | Params  :- ${info.parameter}
         |-------------------------------------------------------------------------------------------------------------------------
@@ -174,9 +188,9 @@ class ApiCall {
 
         $serviceName Service Response
         |--------------------------------------------------------------------------------------------------------------------------
-        | API        :- ${serviceName ?? ""}
-        | StatusCode :- ${response?.statusCode ?? ""}
-        | Message    :- ${response?.body ?? ""}
+        | API        :- $serviceName
+        | StatusCode :- ${response.statusCode}
+        | Message    :- ${response.body}
         |--------------------------------------------------------------------------------------------------------------------------
         """;
     print(apiLog);
@@ -187,8 +201,8 @@ class ApiCall {
 class APIRequestInfoObj {
   HTTPRequestType requestType;
   String url;
-  Map<String, dynamic> parameter;
-  Map<String, String> headers;
+  Map<String, dynamic>? parameter;
+  Map<String, String>? headers;
   List<UploadDocumentObj> docList;
   String serviceName;
   int timeSecond = 30;
@@ -198,7 +212,7 @@ class APIRequestInfoObj {
     this.parameter,
     this.headers,
     this.docList = const [],
-    this.url,
+    required this.url,
     this.serviceName = "",
     this.timeSecond = 30,
   });
