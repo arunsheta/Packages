@@ -205,7 +205,7 @@ class APIRequestInfoObj {
   Map<String, String>? headers;
   List<UploadDocumentObj> docList;
   String serviceName;
-  int timeSecond = 30;
+  int timeSecond = 90;
 
   APIRequestInfoObj({
     this.requestType = HTTPRequestType.POST,
@@ -214,7 +214,7 @@ class APIRequestInfoObj {
     this.docList = const [],
     required this.url,
     this.serviceName = "",
-    this.timeSecond = 30,
+    this.timeSecond = 90,
   });
 }
 
