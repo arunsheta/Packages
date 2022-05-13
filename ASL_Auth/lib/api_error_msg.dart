@@ -29,5 +29,5 @@ class APIErrorMsg {
   // Request timeout...
   static const String requestTimeOutTitle = "Request Timeout";
   static const String requestTimeOutMessage =
-      "Looks like the server is taking to long to respond, this can be caused by either poor connectivity or an error with our servers. Please try again in a while";
+      "Looks like the server is taking too long to respond. This can be caused by poor connectivity or an issue with our servers. Please try again in a moment.";
 }
