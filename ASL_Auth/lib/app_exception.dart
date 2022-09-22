@@ -5,13 +5,14 @@ class AppException implements Exception {
   final String? title;
   final ExceptionType type;
   final int statusCode;
+  final String responseBody;
 
-  AppException({
-    this.title,
-    this.message,
-    this.type = ExceptionType.None,
-    this.statusCode = 200,
-  });
+  AppException(
+      {this.title,
+      this.message,
+      this.type = ExceptionType.None,
+      this.statusCode = 200,
+      this.responseBody = ""});
 
   AlertInfo get getAlertInfo {
     String alertTitle = "";
